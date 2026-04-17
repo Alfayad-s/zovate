@@ -2,6 +2,8 @@
   "name": "zovate",
   "private": true,
   "scripts": {
+    "clean": "pnpm -r --if-present run clean",
+    "db:push": "pnpm --filter @repo/database run db:push",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
@@ -18,3 +20,4 @@
     "node": ">=18"
   }
 }
+ 

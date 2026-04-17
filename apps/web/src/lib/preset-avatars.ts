@@ -1,0 +1,251 @@
+/**
+ * Static avatars under `public/avatars/Pop-out/`, `Circle/`, and `Memoji/`.
+ * Paths use literal filenames (e.g. `Avatar=1.png`); {@link presetAvatarAbsoluteUrl} encodes them for URLs.
+ * Keep in sync with files on disk (see also API `assert-preset-avatar-url`).
+ */
+export const PRESET_POPOUT_PATHS: readonly string[] = [
+  "/avatars/Pop-out/1.png",
+  "/avatars/Pop-out/10.png",
+  "/avatars/Pop-out/11.png",
+  "/avatars/Pop-out/12.png",
+  "/avatars/Pop-out/13.png",
+  "/avatars/Pop-out/14.png",
+  "/avatars/Pop-out/15.png",
+  "/avatars/Pop-out/16.png",
+  "/avatars/Pop-out/17.png",
+  "/avatars/Pop-out/18.png",
+  "/avatars/Pop-out/19.png",
+  "/avatars/Pop-out/2.png",
+  "/avatars/Pop-out/20.png",
+  "/avatars/Pop-out/21.png",
+  "/avatars/Pop-out/22.png",
+  "/avatars/Pop-out/23.png",
+  "/avatars/Pop-out/24.png",
+  "/avatars/Pop-out/25.png",
+  "/avatars/Pop-out/26.png",
+  "/avatars/Pop-out/27.png",
+  "/avatars/Pop-out/28.png",
+  "/avatars/Pop-out/29.png",
+  "/avatars/Pop-out/3.png",
+  "/avatars/Pop-out/30.png",
+  "/avatars/Pop-out/31.png",
+  "/avatars/Pop-out/32.png",
+  "/avatars/Pop-out/33.png",
+  "/avatars/Pop-out/34.png",
+  "/avatars/Pop-out/35.png",
+  "/avatars/Pop-out/36.png",
+  "/avatars/Pop-out/37.png",
+  "/avatars/Pop-out/38.png",
+  "/avatars/Pop-out/39.png",
+  "/avatars/Pop-out/4.png",
+  "/avatars/Pop-out/40.png",
+  "/avatars/Pop-out/41.png",
+  "/avatars/Pop-out/42.png",
+  "/avatars/Pop-out/43.png",
+  "/avatars/Pop-out/44.png",
+  "/avatars/Pop-out/45.png",
+  "/avatars/Pop-out/46.png",
+  "/avatars/Pop-out/47.png",
+  "/avatars/Pop-out/48.png",
+  "/avatars/Pop-out/49.png",
+  "/avatars/Pop-out/5.png",
+  "/avatars/Pop-out/50.png",
+  "/avatars/Pop-out/51.png",
+  "/avatars/Pop-out/52.png",
+  "/avatars/Pop-out/53.png",
+  "/avatars/Pop-out/54.png",
+  "/avatars/Pop-out/55.png",
+  "/avatars/Pop-out/56.png",
+  "/avatars/Pop-out/57.png",
+  "/avatars/Pop-out/58.png",
+  "/avatars/Pop-out/59.png",
+  "/avatars/Pop-out/6.png",
+  "/avatars/Pop-out/60.png",
+  "/avatars/Pop-out/61.png",
+  "/avatars/Pop-out/62.png",
+  "/avatars/Pop-out/63.png",
+  "/avatars/Pop-out/64.png",
+  "/avatars/Pop-out/65.png",
+  "/avatars/Pop-out/66.png",
+  "/avatars/Pop-out/67.png",
+  "/avatars/Pop-out/68.png",
+  "/avatars/Pop-out/69.png",
+  "/avatars/Pop-out/7.png",
+  "/avatars/Pop-out/70.png",
+  "/avatars/Pop-out/71.png",
+  "/avatars/Pop-out/72.png",
+  "/avatars/Pop-out/73.png",
+  "/avatars/Pop-out/74.png",
+  "/avatars/Pop-out/75.png",
+  "/avatars/Pop-out/76.png",
+  "/avatars/Pop-out/77.png",
+  "/avatars/Pop-out/8.png",
+  "/avatars/Pop-out/9.png",
+  "/avatars/Pop-out/Avatar78.png",
+];
+
+/** Circle-style preset avatars (`public/avatars/Circle/`). */
+export const PRESET_CIRCLE_PATHS: readonly string[] = [
+  "/avatars/Circle/Avatar=1.png",
+  "/avatars/Circle/Avatar=10.png",
+  "/avatars/Circle/Avatar=11.png",
+  "/avatars/Circle/Avatar=12.png",
+  "/avatars/Circle/Avatar=13.png",
+  "/avatars/Circle/Avatar=14.png",
+  "/avatars/Circle/Avatar=15.png",
+  "/avatars/Circle/Avatar=16.png",
+  "/avatars/Circle/Avatar=17.png",
+  "/avatars/Circle/Avatar=18.png",
+  "/avatars/Circle/Avatar=19.png",
+  "/avatars/Circle/Avatar=2.png",
+  "/avatars/Circle/Avatar=20.png",
+  "/avatars/Circle/Avatar=21.png",
+  "/avatars/Circle/Avatar=22.png",
+  "/avatars/Circle/Avatar=23.png",
+  "/avatars/Circle/Avatar=24.png",
+  "/avatars/Circle/Avatar=25.png",
+  "/avatars/Circle/Avatar=26.png",
+  "/avatars/Circle/Avatar=27.png",
+  "/avatars/Circle/Avatar=28.png",
+  "/avatars/Circle/Avatar=29.png",
+  "/avatars/Circle/Avatar=3.png",
+  "/avatars/Circle/Avatar=30.png",
+  "/avatars/Circle/Avatar=31.png",
+  "/avatars/Circle/Avatar=32.png",
+  "/avatars/Circle/Avatar=33.png",
+  "/avatars/Circle/Avatar=34.png",
+  "/avatars/Circle/Avatar=35.png",
+  "/avatars/Circle/Avatar=36.png",
+  "/avatars/Circle/Avatar=37.png",
+  "/avatars/Circle/Avatar=4.png",
+  "/avatars/Circle/Avatar=5.png",
+  "/avatars/Circle/Avatar=6.png",
+  "/avatars/Circle/Avatar=7.png",
+  "/avatars/Circle/Avatar=8.png",
+  "/avatars/Circle/Avatar=9.png",
+  "/avatars/Circle/Avatar=Avatar38.png",
+  "/avatars/Circle/Avatar=Avatar39.png",
+  "/avatars/Circle/Avatar=Avatar40.png",
+  "/avatars/Circle/Avatar=Avatar41.png",
+  "/avatars/Circle/Avatar=Avatar42.png",
+  "/avatars/Circle/Avatar=Avatar43.png",
+  "/avatars/Circle/Avatar=Avatar44.png",
+  "/avatars/Circle/Avatar=Avatar45.png",
+  "/avatars/Circle/Avatar=Avatar46.png",
+  "/avatars/Circle/Avatar=Avatar47.png",
+  "/avatars/Circle/Avatar=Avatar48.png",
+  "/avatars/Circle/Avatar=Avatar49.png",
+  "/avatars/Circle/Avatar=Avatar50.png",
+  "/avatars/Circle/Avatar=Avatar51.png",
+  "/avatars/Circle/Avatar=Avatar52.png",
+  "/avatars/Circle/Avatar=Avatar53.png",
+  "/avatars/Circle/Avatar=Avatar54.png",
+  "/avatars/Circle/Avatar=Avatar55.png",
+  "/avatars/Circle/Avatar=Avatar56.png",
+  "/avatars/Circle/Avatar=Avatar57.png",
+  "/avatars/Circle/Avatar=Avatar58.png",
+  "/avatars/Circle/Avatar=Avatar59.png",
+  "/avatars/Circle/Avatar=Avatar60.png",
+  "/avatars/Circle/Avatar=Avatar61.png",
+  "/avatars/Circle/Avatar=Avatar62.png",
+  "/avatars/Circle/Avatar=Avatar63.png",
+  "/avatars/Circle/Avatar=Avatar64.png",
+  "/avatars/Circle/Avatar=Avatar65.png",
+  "/avatars/Circle/Avatar=Avatar66.png",
+  "/avatars/Circle/Avatar=Avatar67.png",
+  "/avatars/Circle/Avatar=Avatar68.png",
+  "/avatars/Circle/Avatar=Avatar69.png",
+  "/avatars/Circle/Avatar=Avatar70.png",
+  "/avatars/Circle/Avatar=Avatar71.png",
+  "/avatars/Circle/Avatar=Avatar72.png",
+  "/avatars/Circle/Avatar=Avatar73.png",
+  "/avatars/Circle/Avatar=Avatar74.png",
+  "/avatars/Circle/Avatar=Avatar75.png",
+  "/avatars/Circle/Avatar=Avatar76.png",
+  "/avatars/Circle/Avatar=Avatar77.png",
+];
+
+/** Memoji-style preset avatars (`public/avatars/Memoji/`). */
+export const PRESET_MEMOJI_PATHS: readonly string[] = [
+  "/avatars/Memoji/1.png",
+  "/avatars/Memoji/2.png",
+  "/avatars/Memoji/3.png",
+  "/avatars/Memoji/4.png",
+  "/avatars/Memoji/5.png",
+  "/avatars/Memoji/6.png",
+  "/avatars/Memoji/7.png",
+  "/avatars/Memoji/8.png",
+  "/avatars/Memoji/9.png",
+  "/avatars/Memoji/10.png",
+  "/avatars/Memoji/11.png",
+  "/avatars/Memoji/12.png",
+  "/avatars/Memoji/13.png",
+  "/avatars/Memoji/14.png",
+  "/avatars/Memoji/15.png",
+  "/avatars/Memoji/16.png",
+  "/avatars/Memoji/17.png",
+  "/avatars/Memoji/18.png",
+  "/avatars/Memoji/19.png",
+  "/avatars/Memoji/20.png",
+  "/avatars/Memoji/21.png",
+  "/avatars/Memoji/22.png",
+  "/avatars/Memoji/23.png",
+  "/avatars/Memoji/24.png",
+  "/avatars/Memoji/25.png",
+  "/avatars/Memoji/26.png",
+  "/avatars/Memoji/27.png",
+  "/avatars/Memoji/28.png",
+  "/avatars/Memoji/29.png",
+  "/avatars/Memoji/30.png",
+  "/avatars/Memoji/31.png",
+  "/avatars/Memoji/32.png",
+  "/avatars/Memoji/33.png",
+  "/avatars/Memoji/34.png",
+  "/avatars/Memoji/35.png",
+  "/avatars/Memoji/36.png",
+  "/avatars/Memoji/37.png",
+  "/avatars/Memoji/38.png",
+  "/avatars/Memoji/39.png",
+  "/avatars/Memoji/40.png",
+  "/avatars/Memoji/41.png",
+  "/avatars/Memoji/42.png",
+  "/avatars/Memoji/43.png",
+  "/avatars/Memoji/44.png",
+  "/avatars/Memoji/45.png",
+];
+
+/** @deprecated use {@link PRESET_POPOUT_PATHS} */
+export const PRESET_AVATAR_PATHS = PRESET_POPOUT_PATHS;
+
+export function presetAvatarAbsoluteUrl(path: string): string {
+  if (typeof window === "undefined") {
+    return path;
+  }
+  const lastSlash = path.lastIndexOf("/");
+  const dir = path.slice(0, lastSlash + 1);
+  const file = path.slice(lastSlash + 1);
+  const safePath = `${dir}${encodeURIComponent(file)}`;
+  return new URL(safePath, window.location.origin).href;
+}
+
+function normalizePathname(p: string): string {
+  try {
+    return decodeURIComponent(p);
+  } catch {
+    return p;
+  }
+}
+
+export function avatarMatchesPreset(
+  storedUrl: string | null | undefined,
+  path: string,
+): boolean {
+  if (!storedUrl) return false;
+  try {
+    const a = new URL(storedUrl);
+    const b = new URL(path, "http://localhost");
+    return normalizePathname(a.pathname) === normalizePathname(b.pathname);
+  } catch {
+    return false;
+  }
+}

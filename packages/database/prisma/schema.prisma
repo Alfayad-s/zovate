@@ -1,0 +1,444 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique
+  username     String?   @unique
+  fullName     String?   @map("full_name")
+  bio          String?   @map("bio") @db.Text
+  avatarUrl    String?   @map("avatar_url")
+  passwordHash String?   @map("password_hash")
+  isVerified   Boolean   @default(false) @map("is_verified")
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamp(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  accounts             Account[]
+
+  ownedWorkspaces      Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[] @relation("WorkspaceMemberUser")
+  invitationsSent      WorkspaceMember[] @relation("WorkspaceMemberInvitedBy")
+  workspaceInvitesReceived WorkspaceInvitation[] @relation("WorkspaceInvitee")
+  workspaceInvitesSent     WorkspaceInvitation[] @relation("WorkspaceInviter")
+  projectsCreated      Project[]         @relation("ProjectCreatedBy")
+  tasksCreated         Task[]            @relation("TaskCreatedBy")
+  labelsCreated        Label[]           @relation("LabelCreatedBy")
+  taskAssignees        TaskAssignee[]    @relation("TaskAssigneeUser")
+  taskAssignmentsMade  TaskAssignee[]    @relation("TaskAssigneeAssignedBy")
+  taskLabelsAssigned   TaskLabel[]       @relation("TaskLabelAssignedBy")
+  comments             Comment[]
+  activityLogs         ActivityLog[]
+  notifications        Notification[]    @relation("NotificationUser")
+  notificationsTriggered Notification[]  @relation("NotificationTriggeredBy")
+  aiRequests           AiRequest[]
+  channelsCreated      Channel[]         @relation("ChannelCreatedBy")
+  messages             Message[]
+  messageReads         MessageRead[]
+  taskStatusesCreated  TaskStatus[]      @relation("TaskStatusCreatedBy")
+
+  @@index([createdAt])
+  @@map("users")
+}
+
+/** OAuth / OIDC linked accounts (e.g. Google). Provider identity is unique per provider. */
+model Account {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  type                String
+  provider            String
+  providerAccountId   String   @map("provider_account_id")
+  refreshToken        String?  @map("refresh_token") @db.Text
+  accessToken         String?  @map("access_token") @db.Text
+  expiresAt           Int?     @map("expires_at")
+  tokenType           String?  @map("token_type")
+  scope               String?
+  idToken             String?  @map("id_token") @db.Text
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Workspace {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  slug      String    @unique
+  ownerId   String    @map("owner_id") @db.Uuid
+  logoUrl   String?   @map("logo_url")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  owner   User @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members WorkspaceMember[]
+  workspaceInvitations WorkspaceInvitation[]
+  projects Project[]
+  tasks    Task[]
+  labels   Label[]
+  comments Comment[]
+  activityLogs ActivityLog[]
+  notifications Notification[]
+  aiRequests AiRequest[]
+  channels Channel[]
+  messages Message[]
+  taskStatuses TaskStatus[]
+
+  @@index([ownerId])
+  @@index([slug])
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  role        String
+  joinedAt    DateTime @default(now()) @map("joined_at") @db.Timestamp(6)
+  invitedById String?  @map("invited_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  user      User      @relation("WorkspaceMemberUser", fields: [userId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  invitedBy User?     @relation("WorkspaceMemberInvitedBy", fields: [invitedById], references: [id])
+
+  @@unique([userId, workspaceId])
+  @@index([userId])
+  @@index([workspaceId])
+  @@map("workspace_members")
+}
+
+/** Pending or historical workspace join requests (accept → creates WorkspaceMember). */
+model WorkspaceInvitation {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId   String    @map("workspace_id") @db.Uuid
+  invitedUserId String    @map("invited_user_id") @db.Uuid
+  role          String
+  invitedById   String    @map("invited_by") @db.Uuid
+  status        String    @default("PENDING")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  respondedAt   DateTime? @map("responded_at") @db.Timestamp(6)
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedUser User      @relation("WorkspaceInvitee", fields: [invitedUserId], references: [id], onDelete: Cascade)
+  invitedBy   User      @relation("WorkspaceInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, invitedUserId])
+  @@index([invitedUserId, status])
+  @@index([workspaceId])
+  @@map("workspace_invitations")
+}
+
+model Project {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  visibility  String    @default("workspace")
+  createdById String    @map("created_by") @db.Uuid
+  isArchived  Boolean   @default(false) @map("is_archived")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  createdBy User      @relation("ProjectCreatedBy", fields: [createdById], references: [id])
+  tasks     Task[]
+  aiRequests AiRequest[]
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@map("projects")
+}
+
+model TaskStatus {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  color       String?
+  position    Decimal  @db.Decimal(65, 30)
+  createdById String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  createdBy User      @relation("TaskStatusCreatedBy", fields: [createdById], references: [id])
+  tasks     Task[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@index([position])
+  @@map("task_statuses")
+}
+
+model Task {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  projectId   String    @map("project_id") @db.Uuid
+  title       String
+  description String?
+  statusId    String    @map("status_id") @db.Uuid
+  priority    String    @default("medium")
+  dueDate     DateTime? @map("due_date") @db.Timestamp(6)
+  endDate     DateTime? @map("end_date") @db.Timestamp(6)
+  createdById String    @map("created_by") @db.Uuid
+  position    Decimal   @db.Decimal(65, 30)
+  isArchived  Boolean   @default(false) @map("is_archived")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id])
+  project   Project    @relation(fields: [projectId], references: [id])
+  status    TaskStatus @relation(fields: [statusId], references: [id])
+  createdBy User       @relation("TaskCreatedBy", fields: [createdById], references: [id])
+
+  assignees TaskAssignee[]
+  labels    TaskLabel[]
+  comments  Comment[]
+  aiRequests AiRequest[]
+
+  @@index([workspaceId])
+  @@index([projectId])
+  @@index([statusId])
+  @@index([createdById])
+  @@map("tasks")
+}
+
+model TaskAssignee {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  taskId      String   @map("task_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  assignedById String  @map("assigned_by") @db.Uuid
+  assignedAt  DateTime @default(now()) @map("assigned_at") @db.Timestamp(6)
+
+  task       Task @relation(fields: [taskId], references: [id])
+  user       User @relation("TaskAssigneeUser", fields: [userId], references: [id])
+  assignedBy User @relation("TaskAssigneeAssignedBy", fields: [assignedById], references: [id])
+
+  @@unique([taskId, userId])
+  @@index([taskId])
+  @@index([userId])
+  @@map("task_assignees")
+}
+
+model Label {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  name        String
+  color       String?
+  createdById String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id])
+  createdBy User       @relation("LabelCreatedBy", fields: [createdById], references: [id])
+  taskLabels TaskLabel[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@index([createdById])
+  @@map("labels")
+}
+
+model TaskLabel {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  taskId       String   @map("task_id") @db.Uuid
+  labelId      String   @map("label_id") @db.Uuid
+  assignedById String   @map("assigned_by") @db.Uuid
+  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamp(6)
+
+  task       Task  @relation(fields: [taskId], references: [id])
+  label      Label @relation(fields: [labelId], references: [id])
+  assignedBy User  @relation("TaskLabelAssignedBy", fields: [assignedById], references: [id])
+
+  @@unique([taskId, labelId])
+  @@index([taskId])
+  @@index([labelId])
+  @@map("task_labels")
+}
+
+model Comment {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId       String    @map("workspace_id") @db.Uuid
+  taskId            String    @map("task_id") @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  content           String
+  parentCommentId   String?   @map("parent_comment_id") @db.Uuid
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  task      Task      @relation(fields: [taskId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  parent    Comment?  @relation("CommentThread", fields: [parentCommentId], references: [id])
+  replies   Comment[] @relation("CommentThread")
+
+  @@index([workspaceId])
+  @@index([taskId])
+  @@index([userId])
+  @@index([parentCommentId])
+  @@map("comments")
+}
+
+model ActivityLog {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id") @db.Uuid
+  action      String
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model Notification {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  workspaceId   String   @map("workspace_id") @db.Uuid
+  type          String
+  entityType    String   @map("entity_type")
+  entityId      String   @map("entity_id") @db.Uuid
+  triggeredById String?  @map("triggered_by") @db.Uuid
+  data          Json?
+  isRead        Boolean  @default(false) @map("is_read")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  user        User      @relation("NotificationUser", fields: [userId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  triggeredBy User?     @relation("NotificationTriggeredBy", fields: [triggeredById], references: [id])
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([isRead])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model AiRequest {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  type        String
+  input       String
+  taskId      String?  @map("task_id") @db.Uuid
+  projectId   String?  @map("project_id") @db.Uuid
+  status      String   @default("pending")
+  errorMessage String? @map("error_message")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  user      User     @relation(fields: [userId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  task      Task?    @relation(fields: [taskId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
+  outputs   AiOutput[]
+
+  @@index([userId])
+  @@index([workspaceId])
+  @@index([taskId])
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_requests")
+}
+
+model AiOutput {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId  String   @map("request_id") @db.Uuid
+  output     Json
+  tokensUsed Int?     @map("tokens_used")
+  model      String?
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  request AiRequest @relation(fields: [requestId], references: [id])
+
+  @@index([requestId])
+  @@map("ai_outputs")
+}
+
+model Channel {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  type        String
+  createdById String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  createdBy User      @relation("ChannelCreatedBy", fields: [createdById], references: [id])
+  messages  Message[]
+
+  @@index([workspaceId])
+  @@index([createdById])
+  @@map("channels")
+}
+
+model Message {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  channelId       String    @map("channel_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  content         String
+  attachments     Json?     @map("attachments")
+  linkPreview     Json?     @map("link_preview")
+  parentMessageId String?   @map("parent_message_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamp(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  channel   Channel   @relation(fields: [channelId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  parent    Message?  @relation("MessageThread", fields: [parentMessageId], references: [id])
+  replies   Message[] @relation("MessageThread")
+  reads     MessageRead[]
+
+  @@index([workspaceId])
+  @@index([channelId])
+  @@index([userId])
+  @@index([parentMessageId])
+  @@map("messages")
+}
+
+model MessageRead {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  messageId String   @map("message_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  readAt    DateTime @default(now()) @map("read_at") @db.Timestamp(6)
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([messageId])
+  @@index([userId])
+  @@map("message_reads")
+}

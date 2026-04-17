@@ -1,11 +1,26 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalPassThroughEnv": [
+    "API_PORT",
+    "DATABASE_URL",
+    "REDIS_URL",
+    "FRONTEND_URL",
+    "GOOGLE_CALLBACK_URL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "JWT_SECRET",
+    "NODE_ENV",
+    "JWT_EXPIRES_IN",
+    "NEXT_PUBLIC_API_URL",
+    "OPENAI_API_KEY",
+    "SWAGGER_SERVER_URL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
